@@ -2231,6 +2231,7 @@ void UnixInit()
 	UnixSetResourceLimit(RLIMIT_NPROC, UNIX_MAX_CHILD_PROCESSES);
 #endif	// RLIMIT_NPROC
 
+#if 0
 	// Write a value to the threads-max of the proc file system
 	o = UnixFileCreate("/proc/sys/kernel/threads-max");
 	if (o != NULL)
@@ -2240,6 +2241,7 @@ void UnixInit()
 		UnixFileWrite(o, tmp, strlen(tmp));
 		UnixFileClose(o, false);
 	}
+#endif
 
 	// Set the signals that is to be ignored
 	signal(SIGPIPE, SIG_IGN);
