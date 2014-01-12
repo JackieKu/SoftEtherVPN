@@ -1,130 +1,102 @@
+cmake_minimum_required(VERSION 2.8.9)
+project(SoftEtherVPN)
+
+function(SimpleFindLibrary lib)
+	include(CMakeParseArguments)
+	cmake_parse_arguments("o" "REQUIRED" "" "" ${ARGN})
+	if (o_REQUIRED)
+		set(errorLevel FATAL_ERROR)
+	else()
+		set(errorLevel STATUS)
+	endif()
+
+	string(TOUPPER "${lib}" LIB)
+	find_library("${LIB}_FOUND" ${lib})
+	if(${LIB}_FOUND)
+		set("${LIB}_FOUND" "${${LIB}_FOUND}" PARENT_SCOPE)
+		set("${LIB}_LIBRARIES" "${${LIB}_FOUND}" PARENT_SCOPE)
+		message(STATUS "Found ${lib}: ${${LIB}_FOUND}")
+	else()
+		set("${LIB}_FOUND" "${lib}-NOTFOUND" PARENT_SCOPE)
+		message(${errorLevel} "Couldn't find ${lib}")
+	endif()
+endfunction()
+
+find_package(OpenSSL REQUIRED)
+find_package(Curses REQUIRED)
+find_package(ZLIB REQUIRED)
+SimpleFindLibrary(readline REQUIRED)
+
+add_subdirectory(Mayaqua/3rdparty/cpu_features EXCLUDE_FROM_ALL)
+
+math(EXPR BITS "${CMAKE_SIZEOF_VOID_P} * 8")
+
+file(GLOB HEADERS_MAYAQUA "Mayaqua/*.h")
+file(GLOB SOURCES_MAYAQUA "Mayaqua/*.c")
+
+file(GLOB HEADERS_CEDAR "Cedar/*.h")
+file(GLOB SOURCES_CEDAR "Cedar/*.c")
+
+set(CONIO_LIBRARIES ${READLINE_LIBRARIES})
+set(CORE_LINK_LIBRARIES ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+
+add_definitions(-DVPN_SPEED -DCPU_${BITS} -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
 if(UNIX)
-  # Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
-  # This is required because symlinks use the folder they are in as working directory.
-  macro(install_wrapper_script component target)
-    get_filename_component(file_name ${target} NAME)
-
-    file(WRITE ${TOP_DIRECTORY}/tmp/script/${file_name} "#!/bin/sh\n")
-    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "${target} \"$@\"\n")
-    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "exit $?\n")
-
-    install(FILES ${TOP_DIRECTORY}/tmp/script/${file_name}
-      COMPONENT ${component}
-      DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
-      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-    )
-  endmacro(install_wrapper_script)
+	add_definitions(-DUNIX)
 endif()
+if(APPLE)
+	add_definitions(-DUNIX_MACOS)
 
-if(BUILD_TYPE STREQUAL "Debug")
-  add_definitions(-D_DEBUG -DDEBUG)
+	SimpleFindLibrary(iconv REQUIRED)
+	list(APPEND CORE_LINK_LIBRARIES ${ICONV_LIBRARIES})
+
+	SimpleFindLibrary(pcap)
+	if(PCAP_FOUND)
+		list(APPEND CORE_LINK_LIBRARIES ${PCAP_LIBRARIES})
+		add_definitions(-DBRIDGE_PCAP)
+	else()
+		message(WARNING "Could not found pcap. Bridging function may not work.")
+	endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_definitions(-DUNIX_LINUX)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 else()
-  add_definitions(-DNDEBUG -DVPN_SPEED)
+	message(FATAL_ERROR "Building for ${CMAKE_SYSTEM_NAME} is not implemented yet.")
 endif()
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(COMPILER_ARCHITECTURE "x64")
-  add_definitions(-DCPU_64)
-else()
-  set(COMPILER_ARCHITECTURE "x86")
-endif()
+include_directories(. Cedar Mayaqua ${OPENSSL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURSES_INCLUDE_DIR} Mayaqua/3rdparty/cpu_features/include)
 
-add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
+add_library(softether SHARED ${SOURCES_MAYAQUA} ${SOURCES_CEDAR})
+target_link_libraries(softether cpu_features ${CORE_LINK_LIBRARIES} ${CONIO_LIBRARIES})
 
-# Add /src to the include paths
-include_directories(.)
+function(add_exe_ _exe _src)
+	add_executable(${_exe} ${_exe}/${_src}.c)
+	target_link_libraries(${_exe} softether)
+endfunction()
 
-if(WIN32)
-  add_definitions(-DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS)
-endif()
+function(add_exe _exe)
+	add_exe_(${_exe} ${_exe})
+endfunction()
 
-if(UNIX)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
+add_exe(vpncmd)
+add_exe(vpnserver)
+add_exe_(vpnclient vpncsvc)
+add_exe(vpnbridge)
+add_exe(hamcorebuilder)
 
-  add_definitions(-DUNIX)
+include(GNUInstallDirs)
+set(MAIN_DIR ${CMAKE_INSTALL_LIBEXECDIR}/softether-vpn)
 
-  if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_definitions(-DUNIX_LINUX)
-    if("$ENV{USE_MUSL}" STREQUAL "YES")
-      add_definitions(-DUNIX_LINUX_MUSL)
-    endif()
-  endif()
-
-  if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-    add_definitions(-DUNIX_BSD -DBRIDGE_BPF)
-    include_directories(SYSTEM /usr/local/include)
-    link_directories(SYSTEM /usr/local/lib)
-  endif()
-
-  if(${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
-    add_definitions(-DUNIX_BSD -DUNIX_OPENBSD)
-    include_directories(SYSTEM /usr/local/include)
-    link_directories(SYSTEM /usr/local/lib)
-  endif()
-
-  if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
-    add_definitions(-DUNIX_SOLARIS -DNO_VLAN)
-  endif()
-
-  if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    add_definitions(-DUNIX_BSD -DUNIX_MACOS -DBRIDGE_PCAP)
-  endif()
-endif()
-
-# Cedar communication module
-add_subdirectory(Cedar)
-
-# Mayaqua kernel
-add_subdirectory(Mayaqua)
-
-# hamcorebuilder utility
-add_subdirectory(hamcorebuilder)
-
-# vpnserver
-add_subdirectory(vpnserver)
-
-# vpnclient
-add_subdirectory(vpnclient)
-
-# vpnbridge
-add_subdirectory(vpnbridge)
-
-# vpncmd
-add_subdirectory(vpncmd)
-
-# vpntest
-add_subdirectory(vpntest)
-
-# hamcore.se2 archive file
-add_custom_target(hamcore-archive-build
-  ALL
-  COMMAND hamcorebuilder "${TOP_DIRECTORY}/src/bin/hamcore/" "${BUILD_DIRECTORY}/hamcore.se2"
-  DEPENDS hamcorebuilder
-  COMMENT "Building hamcore.se2 archive file..."
-  VERBATIM
+install(
+	TARGETS softether vpncmd vpnserver vpnclient vpnbridge
+	RUNTIME DESTINATION ${MAIN_DIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-if(WIN32)
-  # PenCore
-  add_subdirectory(PenCore)
-  add_dependencies(hamcore-archive-build PenCore)
+add_custom_command(OUTPUT hamcore.se2
+	COMMAND hamcorebuilder "${CMAKE_CURRENT_SOURCE_DIR}/bin/hamcore/" hamcore.se2
+	MAIN_DEPENDENCY hamcorebuilder
+)
+add_custom_target(hamcore ALL DEPENDS hamcore.se2)
 
-  # vpnsmgr
-  add_subdirectory(vpnsmgr)
-
-  # vpncmgr
-  add_subdirectory(vpncmgr)
-endif()
-
-if(UNIX)
-  # Print message after installing the targets
-  install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")
-  install(CODE "message(\"Build completed successfully.\n\")")
-  install(CODE "message(\"Execute 'vpnserver start' to run the SoftEther VPN Server background service.\")")
-  install(CODE "message(\"Execute 'vpnbridge start' to run the SoftEther VPN Bridge background service.\")")
-  install(CODE "message(\"Execute 'vpnclient start' to run the SoftEther VPN Client background service.\")")
-  install(CODE "message(\"Execute 'vpncmd' to run the SoftEther VPN Command-Line Utility to configure VPN Server, VPN Bridge or VPN Client.\")")
-  install(CODE "message(\"----------------------------------------------------------------------------------------------------------------------------\n\")")
-endif()
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/hamcore.se2" DESTINATION ${MAIN_DIR})
