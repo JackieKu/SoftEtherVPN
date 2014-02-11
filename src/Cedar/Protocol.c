@@ -5405,8 +5405,21 @@ REDIRECTED:
 		HLog(c->Session->Link->Hub, "LH_CONNECT_2", c->Session->ClientOption->AccountName, session_name);
 	}
 
+	{
+		char connectedFlagFile[128];
+		int fd;
+		snprintf(connectedFlagFile, sizeof(connectedFlagFile), "/run/softether/client-connected.vpn_%s", c->Session->ClientOption->DeviceName);
+		fd = open(connectedFlagFile, O_WRONLY | O_CREAT | O_TRUNC, 00600);
+		if (fd >= 0)
+			close(fd);
+		else
+			perror("Failed to create connected flag.");
+
 	// Main routine of the session
 	SessionMain(c->Session);
+
+		unlink(connectedFlagFile);
+	}
 
 	ok = true;
 
