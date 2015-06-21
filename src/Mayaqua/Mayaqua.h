@@ -212,6 +212,14 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #define	PROBE_DATA(data, size)
 #endif	// USE_PROBE
 
+#if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+#define CPU_X64
+#define CPU_X86_X64
+#endif
+#if defined(__i386) || defined(__i386__)
+#define CPU_X86
+#endif
+
 // About Intel AES-NI Library
 #if	(defined(OS_WIN32) || (defined(UNIX_LINUX) && (defined(CPU_X86) || defined(CPU_X64))))
 // Supports only for Linux (x86 / x64) or Windows
@@ -219,7 +227,7 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #endif
 
 // Determine the performance / memory strategy
-#if	(defined(CPU_X86) || defined(CPU_X64) || defined(CPU_X86_X64) || defined(CPU_SPARC) || defined(CPU_SPARC64) || defined(OS_WIN32) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(i386) || defined(__i386) || defined(__i386__) || defined(__ia64__) || defined(__IA64__) || defined(_IA64))
+#if	(defined(CPU_X86) || defined(CPU_X64) || defined(CPU_X86_X64) || defined(CPU_SPARC) || defined(CPU_SPARC64) || defined(OS_WIN32) || defined(__ia64__) || defined(__IA64__) || defined(_IA64))
 #define	USE_STRATEGY_PERFORMACE
 #else
 #define	USE_STRATEGY_LOW_MEMORY
