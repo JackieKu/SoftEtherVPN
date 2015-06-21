@@ -72,6 +72,7 @@ if(APPLE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_definitions(-DUNIX_LINUX)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+	list(APPEND CORE_LINK_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/Mayaqua/intelaes/lib/intel_aes${BITS}.a") # FIXME Detect x86/x64
 else()
 	message(FATAL_ERROR "Building for ${CMAKE_SYSTEM_NAME} is not implemented yet.")
 endif()
