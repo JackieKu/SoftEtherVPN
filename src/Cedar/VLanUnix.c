@@ -507,7 +507,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 	// Set the name and the flags
 	Zero(&ifr, sizeof(ifr));
 	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
-	ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
+	ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_MULTI_QUEUE;
 
 	if (ioctl(fd, TUNSETIFF, &ifr) == -1)
 	{
