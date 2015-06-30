@@ -3647,6 +3647,13 @@ CANCEL *HubPaGetCancel(SESSION *s)
 	return pa->Cancel;
 }
 
+static
+bool ShouldDropDefaultGateway(SESSION *s)
+{
+	return strncasecmp(s->Username, "nogw", 4) == 0
+	    || strncasecmp(s->GroupName, "nogw", 4) == 0;
+}
+
 // Get the packet to be transmitted next
 UINT HubPaGetNextPacket(SESSION *s, void **data)
 {
@@ -3672,6 +3679,32 @@ UINT HubPaGetNextPacket(SESSION *s, void **data)
 			// Found
 			*data = block->Buf;
 			ret = block->Size;
+
+			if (ShouldDropDefaultGateway(s) && IsDhcpV4ResponsePacket(block->Buf, block->Size)) {
+				PKT *packet = ParsePacketEx4(block->Buf, block->Size, false, 0, false, true, false);
+				DHCPV4_HEADER *dhcp = packet->L7.DHCPv4Header;
+
+				if (dhcp && (dhcp->OpCode == DHCP_OFFER || dhcp->OpCode == DHCP_ACK))
+				{
+					BUF *new_buf;
+					DHCP_MODIFY_OPTION m = {0};
+
+					m.RemoveDefaultGatewayOnReply = true;
+					new_buf = DhcpModifyIPv4(&m, block->Buf, block->Size);
+
+					if (new_buf != NULL)
+					{
+						*data = new_buf->Buf;
+						ret = new_buf->Size;
+
+						Free(block->Buf);
+
+						Free(new_buf);
+					}
+				}
+				FreePacket(packet);
+			}
+
 			// Release the memory of the structure of the block
 			Free(block);
 		}
