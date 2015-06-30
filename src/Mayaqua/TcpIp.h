@@ -908,6 +908,7 @@ bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size);
 UCHAR GetNextByte(BUF *b);
 
 bool IsDhcpPacketForSpecificMac(UCHAR *data, UINT size, UCHAR *mac_address);
+bool IsDhcpV4ResponsePacket(UCHAR *data, UINT size);
 
 ICMP_RESULT *IcmpEchoSendBySocket(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
 ICMP_RESULT *IcmpEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
