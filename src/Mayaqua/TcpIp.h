@@ -903,6 +903,7 @@ bool AdjustTcpMssL2(UCHAR *src, UINT src_size, UINT mss, USHORT tag_vlan_tpid);
 UINT GetIpHeaderSize(UCHAR *src, UINT src_size);
 
 bool IsDhcpPacketForSpecificMac(UCHAR *data, UINT size, UCHAR *mac_address);
+bool IsDhcpV4ResponsePacket(UCHAR *data, UINT size);
 
 ICMP_RESULT *IcmpEchoSendBySocket(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
 ICMP_RESULT *IcmpEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);

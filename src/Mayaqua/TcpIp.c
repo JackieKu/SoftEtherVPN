@@ -508,6 +508,78 @@ bool IsDhcpPacketForSpecificMac(UCHAR *data, UINT size, UCHAR *mac_address)
 	return false;
 }
 
+bool IsDhcpV4ResponsePacket(UCHAR *data, UINT size)
+{
+	USHORT *us;
+	IPV4_HEADER *ip;
+	UDP_HEADER *udp;
+	UINT ip_header_size;
+
+	// Validate arguments
+	if (data == NULL)
+	{
+		return false;
+	}
+
+	// Whether the src or the dest matches
+	if (size < 14)
+	{
+		return false;
+	}
+
+	// Destination MAC address
+	// Source MAC address
+	size -= 12;
+	data += 12;
+
+	// TPID
+	us = (USHORT *)data;
+	size -= 2;
+	data += 2;
+
+	if (READ_USHORT(us) != MAC_PROTO_IPV4)
+	{
+		// Other than IPv4
+		return false;
+	}
+
+	// IP header
+	ip_header_size = GetIpHeaderSize(data, size);
+	if (ip_header_size == 0)
+	{
+		// IPv4 header analysis failure
+		return false;
+	}
+
+	ip = (IPV4_HEADER *)data;
+	data += ip_header_size;
+	size -= ip_header_size;
+
+	if (ip->Protocol != IP_PROTO_UDP)
+	{
+		// Not an UDP packet
+		return false;
+	}
+
+	// UDP header
+	if (size < sizeof(UDP_HEADER))
+	{
+		return false;
+	}
+	udp = (UDP_HEADER *)data;
+	data += sizeof(UDP_HEADER);
+	size -= sizeof(UDP_HEADER);
+
+	// Detect whether it's a DHCP Response packet
+	if (Endian16(udp->SrcPort) == 67)
+	{
+		Debug("IsDhcpV4ResponsePacket: DHCP Response Packet is Detected.\n");
+		return true;
+	}
+
+	return false;
+}
+
 // Adjust the MSS of the TCP in the IP packet (L2)
 bool AdjustTcpMssL2(UCHAR *src, UINT src_size, UINT mss, USHORT tag_vlan_tpid)
 {
