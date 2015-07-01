@@ -4036,14 +4036,22 @@ BUF *DhcpModifyIPv4(DHCP_MODIFY_OPTION *m, void *data, UINT size)
 			// Recalculation of the UDP checksum
 			if (p->TypeL3 == L3_IPV4 && p->TypeL4 == L4_UDP)
 			{
-				UDP_HEADER *udp = p->L4.UDPHeader;
+				IPV4_HEADER *v4 = p->L3.IPv4Header;
 
+				UDP_HEADER *udp = p->L4.UDPHeader;
+				UINT udp_size = p->PacketSize - (UINT)(((UCHAR *)udp) - ((UCHAR *)p->PacketData));
+
+				v4->TotalLength = Endian16(ret->Size - ((UCHAR *)p->L3.IPv4Header - (UCHAR *)ret->Buf));
+				v4->Checksum = 0;
+				v4->Checksum = IpChecksum(v4, IPV4_GET_HEADER_LEN(v4) * 4);
+
+				udp->PacketLength = (udp_size <= 65535) ? Endian16(udp_size) : 0;
 				udp->Checksum = 0;
 				udp->Checksum = CalcChecksumForIPv4(p->L3.IPv4Header->SrcIP,
 					p->L3.IPv4Header->DstIP,
 					IP_PROTO_UDP,
 					udp,
-					p->PacketSize - (UINT)(((UCHAR *)udp) - ((UCHAR *)p->PacketData)), 0);
+					udp_size, 0);
 			}
 
 			FreePacket(p);
