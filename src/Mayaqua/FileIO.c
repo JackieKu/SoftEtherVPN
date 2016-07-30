@@ -1438,6 +1438,21 @@ void GetExeDirW(wchar_t *name, UINT size)
 	GetDirNameFromFilePathW(name, size, exe_file_name_w);
 }
 
+void GetDataDir(char *name, UINT size)
+{
+    if (name) {
+        GetExeDir(name, size);
+        StrCat(name, size, "/data");
+    }
+}
+void GetDataDirW(wchar_t *name, UINT size)
+{
+    if (name) {
+        GetExeDirW(name, size);
+        UniStrCat(name, size, L"/data");
+    }
+}
+
 // Get the EXE file name
 void GetExeName(char *name, UINT size)
 {
