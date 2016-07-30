@@ -1096,7 +1096,7 @@ LIST *EnumLogFile(char *hubname)
 		hubname = NULL;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetDataDir(exe_dir, sizeof(exe_dir));
 
 	// Enumerate in the server_log
 	if (hubname == NULL)
@@ -1170,7 +1170,7 @@ void EnumLogFileDir(LIST *o, char *dirname)
 		return;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetDataDir(exe_dir, sizeof(exe_dir));
 	Format(dir_full_path, sizeof(dir_full_path), "%s/%s", exe_dir, dirname);
 
 	dir = EnumDir(dir_full_path);
