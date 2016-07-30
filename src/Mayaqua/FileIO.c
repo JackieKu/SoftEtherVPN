@@ -2404,7 +2404,7 @@ void InnerFilePathW(wchar_t *dst, UINT size, wchar_t *src)
 	else
 	{
 		wchar_t dir[MAX_SIZE];
-		GetExeDirW(dir, sizeof(dir));
+		GetDataDirW(dir, sizeof(dir));
 		ConbinePathW(dst, size, dir, &src[1]);
 	}
 }

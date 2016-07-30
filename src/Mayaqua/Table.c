@@ -1198,7 +1198,7 @@ void GenerateUnicodeCacheFileName(wchar_t *name, UINT size, wchar_t *strfilename
 		return;
 	}
 
-	GetExeDirW(exe, sizeof(exe));
+	GetDataDirW(exe, sizeof(exe));
 	UniStrCpy(hashtemp, sizeof(hashtemp), strfilename);
 	BinToStrW(tmp, sizeof(tmp), filehash, MD5_SIZE);
 	UniStrCat(hashtemp, sizeof(hashtemp), tmp);
