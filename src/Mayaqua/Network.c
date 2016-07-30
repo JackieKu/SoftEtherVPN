@@ -12809,7 +12809,7 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 	o = NewListFast(NULL);
 
-	GetExeDirW(exedir, sizeof(exedir));
+	GetDataDirW(exedir, sizeof(exedir));
 
 	CombinePathW(dirname, sizeof(dirname), exedir, L"chain_certs");
 
