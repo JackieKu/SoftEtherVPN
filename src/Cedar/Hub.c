@@ -112,6 +112,8 @@
 // Virtual HUB module
 
 #include "CedarPch.h"
+#include <stdio.h>
+#include <assert.h>
 
 static UCHAR broadcast[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static char vgs_ua_str[9] = {0};
@@ -3652,6 +3654,21 @@ bool ShouldDropDefaultGateway(SESSION *s)
 	    || strncasecmp(s->GroupName, "nogw", 4) == 0;
 }
 
+static
+void DumpBuffer(FILE *f, const char *tag, const unsigned char *data, size_t size)
+{
+	const unsigned char *end = data + size;
+
+
+	fprintf(f, "%s size:%8zu ", tag, size);
+
+	for (;data < end; ++data) {
+		fprintf(f, "%02X", (unsigned int)*data);
+	}
+
+	fputc('\n', f);
+}
+
 // Get the packet to be transmitted next
 UINT HubPaGetNextPacket(SESSION *s, void **data)
 {
@@ -3694,6 +3711,15 @@ UINT HubPaGetNextPacket(SESSION *s, void **data)
 					{
 						*data = new_buf->Buf;
 						ret = new_buf->Size;
+
+						{
+							FILE *f = fopen("/tmp/dhcp-modify.log", "a");
+							if (f) {
+								DumpBuffer(f, "I", block->Buf, block->Size);
+								DumpBuffer(f, "O", new_buf->Buf, new_buf->Size);
+								fclose(f);
+							}
+						}
 
 						Free(block->Buf);
 

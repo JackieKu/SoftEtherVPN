@@ -113,6 +113,9 @@
 
 #include "CedarPch.h"
 
+#undef NDEBUG
+#include <assert.h>
+
 // Determine whether the socket is to use to send
 #define	IS_SEND_TCP_SOCK(ts)		\
 	((ts->Direction == TCP_BOTH) || ((ts->Direction == TCP_SERVER_TO_CLIENT) && (s->ServerMode)) || ((ts->Direction == TCP_CLIENT_TO_SERVER) && (s->ServerMode == false)))
@@ -1500,6 +1503,19 @@ SEND_START:
 		if (hub != NULL)
 		{
 			NatSetHubOption(v, hub->Option);
+		}
+
+		{
+			FILE *f = fopen("/tmp/se-debug.log", "a");
+			assert(f != NULL);
+			if (f != NULL) {
+				SESSION *vs = v->Session;
+#define N(s, m) (s && s->m ? s->m : "")
+				fprintf(f, "VirtualPutPacket) VSession:%p/%s/%s/%s PeerSession:%p/%s/%s/%s\n",
+						vs, N(vs, Username), N(vs, UserNameReal), N(vs, GroupName),
+						s, N(s, Username), N(s, UserNameReal), N(s, GroupName));
+				fclose(f);
+			}
 		}
 
 		while (block = GetNext(c->SendBlocks))

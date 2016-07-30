@@ -112,6 +112,7 @@
 // User-mode virtual host program
 
 #include "CedarPch.h"
+#include <assert.h>
 
 static UCHAR broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static char v_vgs_hostname[256] = {0};
@@ -9896,6 +9897,16 @@ bool VirtualPaPutPacket(SESSION *s, void *data, UINT size)
 	if (s == NULL || (v = (VH *)s->PacketAdapter->Param) == NULL)
 	{
 		return false;
+	}
+
+	FILE *f = fopen("/tmp/se-debug.log", "a");
+	assert(f != NULL);
+	if (f != NULL) {
+		SESSION *vs = v->Session;
+		fprintf(f, "VSession:%p/%s/%s/%s PeerSession:%p/%s/%s/%s\n",
+				vs, vs->Username, vs->UserNameReal, vs->GroupName,
+				s, s->Username, s->UserNameReal, s->GroupName);
+		fclose(f);
 	}
 
 	return VirtualPutPacket(v, data, size);
