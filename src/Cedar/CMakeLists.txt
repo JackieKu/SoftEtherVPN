@@ -11,9 +11,8 @@ set_target_properties(cedar
 )
 
 find_library(LIB_READLINE readline)
-find_package(Curses REQUIRED)
 
-target_link_libraries(cedar ${LIB_READLINE} ${CURSES_LIBRARIES})
+target_link_libraries(cedar ${LIB_READLINE})
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   target_link_libraries(cedar pcap)
