@@ -49,7 +49,7 @@ set(HAMCORE_FILES
 bin/hamcore/authors.txt bin/hamcore/backup_dir_readme.txt bin/hamcore/empty.config bin/hamcore/empty_sevpnclient.config bin/hamcore/eula.txt bin/hamcore/install_src.dat bin/hamcore/lang.config bin/hamcore/languages.txt bin/hamcore/languages_wine.txt bin/hamcore/legal.txt bin/hamcore/openvpn_readme.pdf bin/hamcore/openvpn_readme.txt bin/hamcore/openvpn_sample.ovpn bin/hamcore/root_certs.dat bin/hamcore/SOURCES_OF_BINARY_FILES.TXT bin/hamcore/strtable_cn.stb bin/hamcore/strtable_en.stb bin/hamcore/strtable_ja.stb bin/hamcore/vpnweb_sample_cn.htm bin/hamcore/vpnweb_sample_en.htm bin/hamcore/vpnweb_sample_ja.htm bin/hamcore/warning_cn.txt bin/hamcore/warning_en.txt bin/hamcore/warning_ja.txt bin/hamcore/webui/cryptcom.cgi bin/hamcore/webui/edituser.cgi bin/hamcore/webui/error.cgi bin/hamcore/webui/hub.cgi bin/hamcore/webui/license.cgi bin/hamcore/webui/listener.cgi bin/hamcore/webui/localbridge.cgi bin/hamcore/webui/login.cgi bin/hamcore/webui/newhub.cgi bin/hamcore/webui/redirect.cgi bin/hamcore/webui/securenat.cgi bin/hamcore/webui/server.cgi bin/hamcore/webui/session.cgi bin/hamcore/webui/user.cgi bin/hamcore/webui/webui.css
 )
 
-set(CONIO_LIBRARIES ${CURSES_LIBRARIES} ${READLINE_LIBRARIES})
+set(CONIO_LIBRARIES ${READLINE_LIBRARIES})
 set(CORE_LINK_LIBRARIES ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 add_definitions(-DVPN_SPEED -DCPU_${BITS} -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
