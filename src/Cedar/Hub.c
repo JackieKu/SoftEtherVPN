@@ -3559,7 +3559,10 @@ UINT HubPaGetNextPacket(SESSION *s, void **data)
 					DHCP_MODIFY_OPTION m = {
 						.RemoveDefaultGatewayOnReply = true
 					};
-					BUF *new_buf = DhcpModifyIPv4(&m, block->Buf, block->Size);
+					// workaround of memcpy() overlapping traps! until the root cause is found.
+					UCHAR stackBuffer[block->Size];
+					memcpy(stackBuffer, block->Buf, block->Size);
+					BUF *new_buf = DhcpModifyIPv4(&m, stackBuffer, block->Size);
 
 					if (new_buf != NULL)
 					{
