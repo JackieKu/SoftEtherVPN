@@ -3,11 +3,11 @@ include(GNUInstallDirs)
 macro(install_wrapper_script component target destination)
   get_filename_component(filename ${target} NAME)
 
-  file(WRITE ${CMAKE_SOURCE_DIR}/tmp/script/${filename} "#!/bin/sh\n")
-  file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${filename} "${target} \"$@\"\n")
-  file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${filename} "exit $?\n")
+  file(WRITE ${CMAKE_BINARY_DIR}/tmp/script/${filename} "#!/bin/sh\n")
+  file(APPEND ${CMAKE_BINARY_DIR}/tmp/script/${filename} "${target} \"$@\"\n")
+  file(APPEND ${CMAKE_BINARY_DIR}/tmp/script/${filename} "exit $?\n")
 
-  install(FILES ${CMAKE_SOURCE_DIR}/tmp/script/${filename}
+  install(FILES ${CMAKE_BINARY_DIR}/tmp/script/${filename}
     COMPONENT ${component}
     DESTINATION ${destination}
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
@@ -96,7 +96,7 @@ get_target_property(VPNCMD_RUNTIME_OUTPUT_DIRECTORY vpncmd RUNTIME_OUTPUT_DIRECT
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
   ALL
-  COMMAND hamcorebuilder ${CMAKE_SOURCE_DIR}/src/bin/hamcore/ ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2
+  COMMAND hamcorebuilder ${CMAKE_SOURCE_DIR}/src/bin/hamcore/ ${CMAKE_BINARY_DIR}/tmp/hamcore.se2
   DEPENDS hamcorebuilder
   COMMENT "Building hamcore.se2 archive file..."
   VERBATIM
@@ -105,25 +105,25 @@ add_custom_target(hamcore-archive-build
 # Copy hamcore.se2 to vpnserver's directory
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNSERVER_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tmp/hamcore.se2 ${VPNSERVER_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy hamcore.se2 to vpnclient's directory
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tmp/hamcore.se2 ${VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy hamcore.se2 to vpnbridge's directory
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tmp/hamcore.se2 ${VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy hamcore.se2 to vpncmd's directory
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy "vpnserver" directory to /usr/lib(exec)/softether/

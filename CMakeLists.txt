@@ -12,7 +12,7 @@ if(EXISTS "${SoftEtherVPN_SOURCE_DIR}/.git" AND NOT EXISTS "${SoftEtherVPN_SOURC
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
 endif()
 
-set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
+set(BUILD_DIRECTORY "${CMAKE_BINARY_DIR}/out")
 
 add_subdirectory(src)
 
