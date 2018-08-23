@@ -1,3 +1,3 @@
 add_executable(vpnbridge vpnbridge.c)
 
-target_link_libraries(vpnbridge cedar mayaqua)
+target_link_libraries(vpnbridge softether)

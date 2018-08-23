@@ -74,6 +74,10 @@ add_subdirectory(Cedar)
 # Mayaqua kernel
 add_subdirectory(Mayaqua)
 
+set_target_properties(cedar mayaqua PROPERTIES POSITION_INDEPENDENT_CODE true)
+add_library(softether SHARED empty.c)
+target_link_libraries(softether -Wl,--whole-archive cedar mayaqua -Wl,--no-whole-archive)
+
 # hamcorebuilder utility
 add_subdirectory(hamcorebuilder)
 
