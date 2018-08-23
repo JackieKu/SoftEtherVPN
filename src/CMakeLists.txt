@@ -16,9 +16,7 @@ endmacro(install_wrapper_script)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG -DDEBUG)
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+else()
   add_definitions(-DNDEBUG -DVPN_SPEED)
 endif()
 
