@@ -5,13 +5,6 @@ add_library(mayaqua STATIC ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})
 
 target_include_directories(mayaqua PUBLIC .)
 
-set_target_properties(mayaqua
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Mayaqua"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Mayaqua"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Mayaqua"
-)
-
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)

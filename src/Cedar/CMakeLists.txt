@@ -3,13 +3,6 @@ file(GLOB HEADERS_CEDAR "*.h")
 
 add_library(cedar STATIC ${SOURCES_CEDAR} ${HEADERS_CEDAR})
 
-set_target_properties(cedar
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Cedar"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Cedar"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tmp/Cedar"
-)
-
 find_library(LIB_READLINE readline)
 
 target_link_libraries(cedar ${LIB_READLINE})
