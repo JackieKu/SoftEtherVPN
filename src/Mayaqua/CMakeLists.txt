@@ -12,7 +12,7 @@ find_package(ZLIB REQUIRED)
 # In some cases libiconv is not included in libc
 find_library(LIB_ICONV iconv)
 
-add_subdirectory(cpu_features)
+add_subdirectory(cpu_features EXCLUDE_FROM_ALL)
 
 target_include_directories(mayaqua PRIVATE cpu_features/include)
 
