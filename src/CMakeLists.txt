@@ -104,6 +104,7 @@ add_custom_target(hamcore-archive-build
   VERBATIM
 )
 
+if(FALSE)
 # Copy hamcore.se2 to vpnserver's directory
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
@@ -175,3 +176,4 @@ install(CODE "message(\"Execute 'vpnbridge start' to run the SoftEther VPN Bridg
 install(CODE "message(\"Execute 'vpnclient start' to run the SoftEther VPN Client background service.\")")
 install(CODE "message(\"Execute 'vpncmd' to run the SoftEther VPN Command-Line Utility to configure VPN Server, VPN Bridge or VPN Client.\")")
 install(CODE "message(\"----------------------------------------------------------------------------------------------------------------------------\n\")")
+endif()
