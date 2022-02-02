@@ -5,6 +5,8 @@
 // Protocol.c
 // SoftEther protocol related routines
 
+#include <fcntl.h>
+
 #include "Protocol.h"
 
 #include "Admin.h"
