@@ -9,6 +9,12 @@
 
 #include "VLanUnix.h"
 
+#if defined(UNIX_OPENBSD) || defined(UNIX_SOLARIS)
+#include <netinet/if_ether.h>
+#else
+#include <net/ethernet.h>
+#endif
+
 #include "Connection.h"
 #include "Session.h"
 
@@ -24,16 +30,10 @@
 #endif
 
 #include <errno.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <net/if_arp.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
-
-#if defined(UNIX_OPENBSD) || defined(UNIX_SOLARIS)
-#include <netinet/if_ether.h>
-#else
-#include <net/ethernet.h>
-#endif
 
 static LIST *unix_vlan = NULL;
 
